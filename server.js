@@ -41,37 +41,24 @@ function runPython(socket, code) {
     let fileName = "main.py"; // todo 换成随机文件名
     fs.writeFileSync(fileName, code, "utf8");
 
-    // let subProcess = spawn("python3", ["input.py"], { cmd: __dirname });
-    let subProcess = spawn("python3", [fileName], { cmd: __dirname });
-    // let subProcess = spawn("python3", [`-c "${code}"`], { cmd: __dirname });
+    let subProcess = spawn("python", [fileName], { cmd: __dirname });
 
-    let isClose = false;
     // 监听子进程是否运行完毕
     subProcess.on("close", code => {
-        isClose = true;
-        // console.log(code === 0 ? "登录成功" : `子进程退出码：${code}`);
-        subProcess.stdout.off("data", onData);
-        subProcess.stderr.off("data", onData);
+        console.log("Python程序已结束");
     });
 
     subProcess.stdout.on("data", onData);
     subProcess.stderr.on("data", onData);
 
-    process.stdin.on("data", input => {
-        input = input.toString().trim();
-        if (!isClose) {
-            subProcess.stdin.write(input + "\n");
-        }
+    function onData(data) {
+        socket.emit("stdout", data.toString());
+    }
+
+    // 接收前端发送的输入，并将输入发送给Python子进程
+    socket.on("input", function(input) {
+        subProcess.stdin.write(input + "\n");
     });
 
-    function onData(data) {
-        setTimeout(() => {
-            if (isClose) {
-                socket.emit("code response", data.toString());
-            } else {
-                socket.emit("stdout", data.toString());
-            }
-        }, 20);
-    }
     return subProcess;
 }

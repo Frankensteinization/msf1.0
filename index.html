@@ -155,6 +155,20 @@ visualize_influence(main_R, main_coord, other_Rs, other_coords)
                 let li = document.createElement("li");
                 li.innerHTML = `<li> >>> ${msg}：<input class="stdin"/></li>`;
                 list.appendChild(li);
+                
+                let sendBtn = document.createElement('button');
+                sendBtn.innerText = '发送';
+                sendBtn.onclick = function() {
+                    let input = parseFloat(content.value.trim()); // 将输入转换为浮点数
+                    if (!isNaN(input)) { // 检查是否成功转换为浮点数
+                        socket.emit("code input", input);
+                        content.value = ''; // 清空输入框内容
+                        sendBtn.parentNode.removeChild(sendBtn); // 移除发送按钮
+                    } else {
+                        // alert("请输入有效的数字！");
+                    }
+                };
+                li.appendChild(sendBtn);
             }
             function createResponse(msg) {
                 let li = document.createElement("li");
