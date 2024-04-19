@@ -159,16 +159,15 @@ visualize_influence(main_R, main_coord, other_Rs, other_coords)
                 if(msg.includes("输入")){
                     shouldDisplayInput = true
                 }
-                else if(msg.includes("WARNING")){
-                    shouldDisplayInput = false
-                }
                 else{
                     shouldDisplayInput = false
                 }
 
                 let li = document.createElement("li");
                 let inputElement = shouldDisplayInput ? `<input class="stdin"/>` : '';
-                li.innerHTML = `<li>${shouldDisplayInput ? msg : ""}${inputElement}</li>`;
+                // li.innerHTML = `<li>${shouldDisplayInput ? msg : ""}${inputElement}</li>`;
+                li.innerHTML = `<li>${msg.includes("WARNING")? "" : msg}${inputElement}</li>`;
+
                 list.appendChild(li);
 
                 if(shouldDisplayInput){
