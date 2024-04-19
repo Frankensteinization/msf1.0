@@ -141,35 +141,53 @@ print(f"净影响面积: {area}")
 visualize_influence(main_R, main_coord, other_Rs, other_coords)
 
 
-# exit(0)</textarea>
-            <button id="btn">运行模型</button>
-            <button id="refreshBtn">刷新</button>
+# exit(0)
+</textarea>
+        <button id="btn">运行模型</button>
+        <button id="refreshBtn">刷新</button>
 
-            <ul id="list"></ul>
+        <ul id="list"></ul>
+            
         </div>
+        
         <script src="https://cdn.bootcss.com/socket.io/2.3.0/socket.io.js"></script>
         <script>
             let socket = io();
 
             function createStdout(msg) {
+
+                if(msg.includes("输入")){
+                    shouldDisplayInput = true
+                }
+                else if(msg.includes("WARNING")){
+                    shouldDisplayInput = false
+                }
+                else{
+                    shouldDisplayInput = false
+                }
+
                 let li = document.createElement("li");
-                li.innerHTML = `<li> >>> ${msg}：<input class="stdin"/></li>`;
+                let inputElement = shouldDisplayInput ? `<input class="stdin"/>` : '';
+                li.innerHTML = `<li>${shouldDisplayInput ? msg : ""}${inputElement}</li>`;
                 list.appendChild(li);
-                
-                let sendBtn = document.createElement('button');
-                sendBtn.innerText = '发送';
-                sendBtn.onclick = function() {
-                    let input = parseFloat(content.value.trim()); // 将输入转换为浮点数
-                    if (!isNaN(input)) { // 检查是否成功转换为浮点数
-                        socket.emit("code input", input);
-                        content.value = ''; // 清空输入框内容
-                        sendBtn.parentNode.removeChild(sendBtn); // 移除发送按钮
-                    } else {
-                        // alert("请输入有效的数字！");
-                    }
-                };
-                li.appendChild(sendBtn);
+
+                if(shouldDisplayInput){
+                    let inputField = li.querySelector('.stdin');
+                    let sendBtn = document.createElement('button');
+                    sendBtn.innerText = '发送';
+
+                    sendBtn.onclick = function() {
+                        let input = parseFloat(content.value.trim()); // 将输入转换为浮点数
+                        if (!isNaN(input)) { // 检查是否成功转换为浮点数
+                            socket.emit("code input", input);
+                            inputField.setAttribute("readonly", true); // 设置输入框为只读
+                            sendBtn.disabled = true; // 禁用发送按钮
+                        }
+                    };
+                    li.appendChild(sendBtn);
+                }
             }
+
             function createResponse(msg) {
                 let li = document.createElement("li");
                 li.innerHTML = `<li> >>> ${msg}`;
